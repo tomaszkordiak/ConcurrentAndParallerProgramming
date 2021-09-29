@@ -1,36 +1,28 @@
 import time
-from workers.SleepyWorkers import SleepyWorker
-from workers.SquareSumWorkers import SquaredSumWorker
+from workers.WikiWorker import WikiWorker
+from workers.YahooFinanceWorkers import YahooFinancePriceWorker, YahooFinancePriceScheduler
+from multiprocessing import Queue
 
 
 def main():
-    calc_start_time = time.time()
+    symbol_queue = Queue()
+    scraper_start_time = time.time()
 
-    current_workers = []
-    for i in range(5):
-        maximum_value = (i+1) * 1000000
-        squareSumWorker = SquaredSumWorker(maximum_value)
-        current_workers.append(squareSumWorker)
-        # calculate_sum_squares((i+1) * 1000000)
+    wikiWorker = WikiWorker()
+    yahoo_finance_price_scheduler_threads = []
+    for i in range(15):
+        yahooFinancePriceScheduler = YahooFinancePriceScheduler(input_queue=symbol_queue)
+        yahoo_finance_price_scheduler_threads.append(yahooFinancePriceScheduler)
+    for symbol in wikiWorker.get_sp_500_companies():
+        symbol_queue.put(symbol)
 
-    for i in range(len(current_workers)):
-        current_workers[i].join()
+    for i in range(len(yahoo_finance_price_scheduler_threads)):
+        symbol_queue.put('DONE')
 
-    print('Calculating sum of squares took:'
-          , round(time.time() - calc_start_time, 1))
+    for i in range(len(yahoo_finance_price_scheduler_threads)):
+        yahoo_finance_price_scheduler_threads[i].join()
 
-    sleep_start_time = time.time()
-    current_workers = []
-    for seconds in range(1, 6):
-        sleepyWorker = SleepyWorker(seconds)
-        current_workers.append(sleepyWorker)
-        # sleep_a_little(i)
-
-    print('Sleep took:'
-          , round(time.time() - sleep_start_time, 1))
-
-    for i in range(len(current_workers)):
-        current_workers[i].join()
+    print('Extracting time took:', round(time.time() - scraper_start_time, 1))
 
 
 if __name__ == '__main__':
