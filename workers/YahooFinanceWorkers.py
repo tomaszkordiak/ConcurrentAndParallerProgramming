@@ -8,6 +8,7 @@ import random
 # //*[@id="quote-header-info"]/div[3]/div[1]/div[1]/span[1]
 # //*[@id="quote-header-info"]/div[3]/div[1]/div/span[1]
 # //*[@id="quote-header-info"]/div[3]/div[1]/div/span[1]
+# //*[@id="quote-header-info"]/div[3]/div[1]/div/span[1]
 
 
 class YahooFinancePriceScheduler(threading.Thread):
