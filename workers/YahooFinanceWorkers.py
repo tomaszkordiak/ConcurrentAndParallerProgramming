@@ -1,7 +1,8 @@
 import threading
 import requests
+from bs4 import BeautifulSoup
 from lxml import html
-import time
+import datetime, time
 import random
 
 
@@ -12,20 +13,25 @@ import random
 
 
 class YahooFinancePriceScheduler(threading.Thread):
-    def __init__(self, input_queue, **kwargs):
+    def __init__(self, input_queue,output_queue, **kwargs):
         super(YahooFinancePriceScheduler, self).__init__(**kwargs)
         self._input_queue = input_queue
+        self._output_queue = output_queue
         self.start()
 
     def run(self) -> None:
         while True:
             val = self._input_queue.get()
             if val == 'DONE':
+                if self._output_queue is not None:
+                    self._output_queue.put('DONE')
                 break
             yahooFinancePriceWorker = YahooFinancePriceWorker(symbol=val)
             price = yahooFinancePriceWorker.get_price()
-            print(f'Price for {val}:', price)
-            #time.sleep(random.random())
+            if self._output_queue is not None:
+                output_values = (val, price, datetime.datetime.utcnow())
+                self._output_queue.put(output_values)
+            time.sleep(random.random())
 
 
 class YahooFinancePriceWorker():
@@ -36,6 +42,7 @@ class YahooFinancePriceWorker():
 
     def get_price(self):
         time.sleep(20 * random.random())
+
         r = requests.get(self._url)
         if r.status_code != 200:
             return
