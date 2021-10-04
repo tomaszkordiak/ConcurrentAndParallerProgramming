@@ -19,7 +19,7 @@ def main():
 
 
     sqlite_scheduler_threads = []
-    sqlite_workers = 2
+    sqlite_workers = 8
 
     for i in range(sqlite_workers):
         sqliteScheduler = SqliteMasterScheduler(input_queue=sqlite_queue)

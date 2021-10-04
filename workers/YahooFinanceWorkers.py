@@ -31,7 +31,6 @@ class YahooFinancePriceScheduler(threading.Thread):
             if self._output_queue is not None:
                 output_values = (val, price, datetime.datetime.utcnow())
                 self._output_queue.put(output_values)
-            time.sleep(random.random())
 
 
 class YahooFinancePriceWorker():
@@ -50,4 +49,5 @@ class YahooFinancePriceWorker():
         price = page_contents.xpath('//*[@id="quote-header-info"]/div[3]/div[1]/div[1]/span[1]')[0].text
         if price == 'None':
             price = page_contents.xpath('//*[@id="quote-header-info"]/div[3]/div[1]/div/span[1]')[0].text
+        print(price)
         return price
